@@ -1,11 +1,12 @@
-import express,{Request, Response} from "express";
+import express, { Request, Response } from "express";
 import cors from "cors";
 import "dotenv/config";
 import mongoose from "mongoose";
 import myUserRoute from "./routes/MyUserRoute";
+import { v2 as cloudinary } from "cloudinary";
 import myRestaurantRoute from "./routes/MyRestaurantRoute";
 import restaurantRoute from "./routes/RestaurantRoute";
-import { v2 as cloudinary } from "cloudinary";
+import orderRoute from "./routes/OrderRoute";
 
 mongoose
     .connect(process.env.MongoDB_Connection as string)
@@ -19,17 +20,20 @@ cloudinary.config({
 
 const app = express();
 
-app.use(express.json());
-
 app.use(cors());
+
+app.use("/api/order/checkout/webhook", express.raw({ type: "*/*" }));
+
+app.use(express.json());
 
 app.get("/health", async (req: Request, res: Response) => {
     res.send({ message: "health OK!" });
-  });
+});
 
 app.use("/api/my/user", myUserRoute);
 app.use("/api/my/restaurant", myRestaurantRoute);
 app.use("/api/restaurant", restaurantRoute);
+app.use("/api/order", orderRoute);
 
 app.listen(7859, ()=> {
     console.log("sever started on localhost:7859");
