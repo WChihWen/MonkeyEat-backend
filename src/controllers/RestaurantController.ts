@@ -27,7 +27,7 @@ const searchRestaurant = async (req: Request, res: Response) => {
         const page = parseInt(req.query.page as string) || 1;
 
         let query: any = {};       
-        query["city"] = new RegExp(city, "i");// seattle = Seattle
+        
         const cityCheck = await Restaurant.countDocuments(query);
         if (cityCheck === 0) {
             return res.status(404).json({
@@ -49,13 +49,14 @@ const searchRestaurant = async (req: Request, res: Response) => {
         }
 
         if (searchQuery) {
-            //const searchRegex = new RegExp(searchQuery, "i");
-            //console.log(searchRegex);            
-            query["city"] = new RegExp(searchQuery, "i");
-            // query["$or"] = [
-            //     { restaurantName: searchRegex },
-            //     { cuisines: { $in: [searchRegex] } },
-            // ];
+            const searchRegex = new RegExp(searchQuery, "i");     
+             query["$or"] = [
+                { city: searchRegex },
+                 { restaurantName: searchRegex },
+                 { cuisines: { $in: [searchRegex] } },
+             ];
+        }else{
+            query["city"] = new RegExp(city, "i");// seattle = Seattle
         }
         //console.log(query);
         const pageSize = 10;
